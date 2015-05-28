@@ -70,7 +70,8 @@ class	plot:
 		p('RRI11(x)=%f' % RRI11 ) 
 		p('RRI14(x)=%f' % RRI14 ) 
 
-		p('set title "%s, Price: %f, (9,11,14)%% = (%f, %f, %f) "' % (symbol, rows[0][10], RRI9, RRI11, RRI14 ) )
+		p('set title "%s, %s\\n %s @ %s\\nPrice: %f, (9,11,14)%% = (%f, %f, %f) "' \
+			% (symbol, rows[0][3], rows[0][4], rows[0][2], rows[0][10], RRI9, RRI11, RRI14 ) )
 
 		p('set terminal png size 1200,600')
 		cmd = 'set output \'%s\'' %  ('./' + path + '/' + symbol + '.png')
