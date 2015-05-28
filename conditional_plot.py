@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
+import	datetime 
 
-base = 'stocks'
+base = 'stocks-' + datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
 
 conds = [ \
 	'price > 0 and RRI14 > price', 
@@ -10,12 +11,8 @@ conds = [ \
 	'price > 0 and RRI14 > price and exchange = "NYQ"',
 	'price > 0 and RRI14 > price and exchange = "FRA"',
 	'price > 0 and RRI14 > price and exchange = "PAR"',
-	'price > 0 and RRI14 > price and exchange = "KHG"'
-	]
-
-conds = [ \
-	'price > 0 and RRI14 > price and exchange = "NMS"',
-	'price > 0 and RRI14 > price and exchange = "NAS"',
+	'price > 0 and RRI14 > price and exchange = "KHG"',
+	'price > 0 and RRI14 > price and exchange = "TWO"'
 	]
 
 
@@ -52,7 +49,9 @@ for cond in conds:
 		for root, dirs, files in os.walk( path ): 
 			for f in files:
 				if f.endswith('png') == True:
-					fp.write( '\t<img src="./%s"/>\n' % f )
+					fp.write( '\t<a href="http://finance.yahoo.com/q?s=%s" target="_blank"/>\n' % f[:-4] )
+					fp.write( '\t\t<img border=10 src="./%s"/>\n' % f )
+					fp.write( '\t<a/>\n' )
 		fp.write( '</body></html>\n' )
 
 	with open( base + '/index.html', 'a') as f:
