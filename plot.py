@@ -47,16 +47,26 @@ class	plot:
 			dividends = cursor.fetchall()
 
 			div_total = 0.0
+			div_last = 0.0
 			for d in dividends:
 				print d
 				if d[1].year >= 2010 and d[1].year <= 2014:
 					div_total += d[2]
+
+				if d[1].year == 2014:
+					div_last += d[2]
+
 			print "Average dividend: ", div_total / 5.0
+
 
 		if True:
 			RRI9 = div_total / 5.0 / 0.09
 			RRI11 = div_total / 5.0 / 0.11
 			RRI14= div_total / 5.0 / 0.14
+
+			RRI9Last = div_last / 0.09
+			RRI11Last = div_last / 0.11
+			RRI14Last = div_last / 0.14
 		else:
 			RRI9 = rows[0][11] 
 			RRI11 = rows[0][12] 
@@ -70,8 +80,15 @@ class	plot:
 		p('RRI11(x)=%f' % RRI11 ) 
 		p('RRI14(x)=%f' % RRI14 ) 
 
-		p('set title "%s, %s\\n %s @ %s\\nPrice: %.2f, (9,11,14)%% = (%.2f, %.2f, %.2f) "' \
-			% (symbol, rows[0][3], rows[0][4], rows[0][2], rows[0][10], RRI9, RRI11, RRI14 ) )
+		p('RRI9Last(x)=%f' % RRI9Last )
+		p('RRI11Last(x)=%f' % RRI11Last )
+		p('RRI14Last(x)=%f' % RRI14Last )
+
+		p('set title "%s, %s\\n %s @ %s\\nPrice: %.2f\\n' \
+		'average dividend of last 5 years: (9,11,14)%% = (%.2f, %.2f, %.2f)\\n'
+		'dividend of last year:  (9,11,14)%% = (%.2f, %.2f, %.2f)%%"' \
+			% (symbol, rows[0][3], rows[0][4], rows[0][2], rows[0][10], \
+			RRI9, RRI11, RRI14, RRI9Last, RRI11Last, RRI14Last ) )
 
 		p('set terminal png size 1200,600')
 		cmd = 'set output \'%s\'' %  ('./' + path + '/' + symbol + '.png')
@@ -81,6 +98,7 @@ class	plot:
 		p('set xdata time')
 		p('set timefmt "%Y-%m-%d"')
 		p('set format x ""')
+		p('unset grid')
 		p('set tmargin')
 		p('set lmargin 10')
 		p('set bmargin 0')
@@ -88,6 +106,7 @@ class	plot:
 		p('set size 1, 0.4')
 		p('set origin 0, 0.6')
 		p('plot RRI9(x) title "9%", RRI11(x) title "11%", RRI14(x) title "14%", "' + price_file + '" using 1:5 notitle with lines')
+		p('set grid')
 		p('set title ""')
 		p('set tmargin 0')
 		p('set bmargin 0')
@@ -100,6 +119,7 @@ class	plot:
 		p('set xdata time')
 		p('set timefmt "%Y-%m-%d"')
 		p('set format x "%y/%m/%d"')
+		#p('set xtics ("2010/01/01","2011/01/01")')
 		p('set size 1.0, 0.3')
 		p('set origin 0.0, 0.0')
 
@@ -107,8 +127,8 @@ class	plot:
 		p('plot "' + dividend_file + '" using 1:2 title "dividend" with linespoints')
 		p('unset multiplot')
 
-		#time.sleep(1)
-		#os.system( 'open %s' % (symbol + '.png') ) 
+		time.sleep(1)
+		os.system( 'open %s' % (symbol + '.png') ) 
 
 
 if __name__ == '__main__':
@@ -116,7 +136,8 @@ if __name__ == '__main__':
 		print "Usage: ", sys.argv[0], " SYMBOL"
 		sys.exit(0)
 
-	plot( sys.argv[1] )
+	for x in sys.argv[1:]:
+		plot( x )
 
 
 

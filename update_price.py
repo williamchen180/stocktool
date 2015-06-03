@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-CATEGORY = 'mutual'
-SKIPTO = 'AXKL.MU'
+CATEGORY = ''
+SKIPTO = 'OR7.F'
 
 
 import MySQLdb
