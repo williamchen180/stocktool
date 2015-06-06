@@ -1,11 +1,31 @@
 #!/usr/bin/python
+import signal
+import sys
+import time
+import MySQLdb
+import os
+from yahoo_finance import Share
+
 
 CATEGORY = ''
-SKIPTO = 'OR7.F'
+SKIPTO = 'ZSTJ1408.NYM'
 
 
-import MySQLdb
-from yahoo_finance import Share
+
+
+
+def signal_handler( signal, frame ):
+	with open( 'price_skip.txt', 'w') as f:
+		f.write( current )
+	sys.exit(0)
+signal.signal(signal.SIGINT, signal_handler)
+
+
+if os.path.isfile( 'price_skip.txt' ) is True:
+	with open( 'price_skip.txt', 'r') as f:
+		SKIPTO = f.readline()
+	
+
 
 
 conn=MySQLdb.connect(host="localhost",user="root",passwd="111111",charset="utf8", db='finance')
@@ -33,6 +53,8 @@ for row in cursor.fetchall():
 
 	if start == False:
 		continue
+
+	current = row[1]
 
 	try:
 		stock = Share( row[1] )

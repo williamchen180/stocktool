@@ -84,9 +84,9 @@ class	plot:
 		p('RRI11Last(x)=%f' % RRI11Last )
 		p('RRI14Last(x)=%f' % RRI14Last )
 
-		p('set title "%s, %s\\n %s @ %s\\nPrice: %.2f\\n' \
-		'average dividend of last 5 years: (9,11,14)%% = (%.2f, %.2f, %.2f)\\n'
-		'dividend of last year:  (9,11,14)%% = (%.2f, %.2f, %.2f)%%"' \
+		p('set title "%s, %s %s @ %s Price: %.2f ' \
+		' (9,11,14)%% = (%.2f, %.2f, %.2f) '
+		' (9,11,14)%% = (%.2f, %.2f, %.2f)%%"' \
 			% (symbol, rows[0][3], rows[0][4], rows[0][2], rows[0][10], \
 			RRI9, RRI11, RRI14, RRI9Last, RRI11Last, RRI14Last ) )
 
