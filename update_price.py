@@ -4,69 +4,83 @@ import sys
 import time
 import MySQLdb
 import os
+import threading
 from yahoo_finance import Share
 
+total_threads = 100
 
 CATEGORY = ''
-SKIPTO = 'ZSTJ1408.NYM'
-
-
-
-
+SKIPTO = ''
 
 def signal_handler( signal, frame ):
 	with open( 'price_skip.txt', 'w') as f:
 		f.write( current )
 	sys.exit(0)
+
 signal.signal(signal.SIGINT, signal_handler)
 
 
-if os.path.isfile( 'price_skip.txt' ) is True:
-	with open( 'price_skip.txt', 'r') as f:
-		SKIPTO = f.readline()
-	
+
+def worker( i, targets, ret ):
+	for row in targets:
+		try:
+			stock = Share( row[1] )
+		except Exception as e:
+			pass
+		else:
+			price = stock.get_price()
+			#print i, ' ', price
+			if price == None:
+				price = -1.0
+			ret[ row ] = price
+			
 
 
 
-conn=MySQLdb.connect(host="localhost",user="root",passwd="111111",charset="utf8", db='finance')
+if __name__ == '__main__':
+	if False and os.path.isfile( 'price_skip.txt' ) is True:
+		with open( 'price_skip.txt', 'r') as f:
+			SKIPTO = f.readline()
 
-cursor = conn.cursor()
+	conn=MySQLdb.connect(host="localhost",user="root",passwd="111111",charset="utf8", db='finance')
+
+	cursor = conn.cursor()
 
 
-if CATEGORY != '':
-	sql = 'SELECT * FROM SYMBOL WHERE CATEGORY=\'' + CATEGORY + '\''
-else:
-	sql = 'SELECT * FROM SYMBOL'
+	if CATEGORY != '':
+		sql = 'SELECT * FROM SYMBOL WHERE CATEGORY=\'' + CATEGORY + '\''
+	else:
+		sql = 'SELECT * FROM SYMBOL'
 
-num = cursor.execute( sql )
+	Total = cursor.execute( sql )
+	print 'Total:', Total
 
-if SKIPTO != '':
-	start = False
-else:
-	start = True
-
-for row in cursor.fetchall():
-	print '\033[1;33m' + row[1] + '\033[0m'
-
-	if row[1] == SKIPTO: 
+	if SKIPTO != '':
+		start = False
+	else:
 		start = True
 
-	if start == False:
-		continue
+	rows = cursor.fetchall()
 
-	current = row[1]
+	threads = []
 
-	try:
-		stock = Share( row[1] )
-	except Exception as e:
-		pass
-	else:
-		price = stock.get_price()
-		print price
-		if price == None:
-			price = -1.0
 
-		sql = 'UPDATE `finance`.`SYMBOL` SET `PRICE` = %s WHERE `symbol`.`INDEX` = %d' % (price, row[0] )
+	ret = {}
+
+	for i in range(0, Total/total_threads + 1):
+		if i*total_threads < Total:
+			target = rows[ i*total_threads: i*total_threads + total_threads ]
+		else:
+			target = rows[ i*total_threads: ]
+		t = threading.Thread( target=worker, args=(i, target,ret))
+		threads.append(t)
+		t.start() 
+
+	for t in threads:
+		t.join()
+
+	for x in ret:
+		sql = 'UPDATE `finance`.`SYMBOL` SET `PRICE` = %s WHERE `symbol`.`INDEX` = %d' % (ret[x], x[0] )
+		print sql
 		cursor.execute( sql )
 		conn.commit()
-
