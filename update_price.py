@@ -7,7 +7,7 @@ import os
 import threading
 from yahoo_finance import Share
 
-total_threads = 100
+stocks_per_thread = 100
 
 CATEGORY = ''
 SKIPTO = ''
@@ -42,7 +42,7 @@ if __name__ == '__main__':
 		with open( 'price_skip.txt', 'r') as f:
 			SKIPTO = f.readline()
 
-	conn=MySQLdb.connect(host="localhost",user="root",passwd="111111",charset="utf8", db='finance')
+	conn=MySQLdb.connect(host="localhost",user="root",passwd="!23QweAsdZxc",charset="utf8", db='finance')
 
 	cursor = conn.cursor()
 
@@ -67,11 +67,11 @@ if __name__ == '__main__':
 
 	ret = {}
 
-	for i in range(0, Total/total_threads + 1):
-		if i*total_threads < Total:
-			target = rows[ i*total_threads: i*total_threads + total_threads ]
+	for i in range(0, Total/stocks_per_thread + 1):
+		if i*stocks_per_thread < Total:
+			target = rows[ i*stocks_per_thread: i*stocks_per_thread + stocks_per_thread ]
 		else:
-			target = rows[ i*total_threads: ]
+			target = rows[ i*stocks_per_thread: ]
 		t = threading.Thread( target=worker, args=(i, target,ret))
 		threads.append(t)
 		t.start() 

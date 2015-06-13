@@ -16,7 +16,7 @@ class	plot:
 
 		symbol = symbol.upper()
 
-		conn=MySQLdb.connect(host="localhost",user="root",passwd="111111",charset="utf8", db='finance')
+		conn=MySQLdb.connect(host="localhost",user="root",passwd="!23QweAsdZxc",charset="utf8", db='finance')
 		cursor = conn.cursor()
 
 		sql = 'SELECT * FROM `SYMBOL` WHERE `TICKER` LIKE \'%s\'' % symbol 

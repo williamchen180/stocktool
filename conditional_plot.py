@@ -20,7 +20,7 @@ import MySQLdb
 import plot
 import os
 
-conn=MySQLdb.connect(host="localhost",user="root",passwd="111111",charset="utf8", db='finance')
+conn=MySQLdb.connect(host="localhost",user="root",passwd="!23QweAsdZxc",charset="utf8", db='finance')
 cursor = conn.cursor()
 
 if os.path.isdir( base ) is False:

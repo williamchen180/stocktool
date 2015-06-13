@@ -1,9 +1,11 @@
 #!/usr/bin/python
 
 CATEGORY = ''
-SKIPTO = 'X7Z1419.NYM'
+SKIPTO = 'DKE1.SG'
 
+stocks_per_thread = 10000000
 
+import threading
 import os.path
 import time
 from mechanize import Browser
@@ -18,42 +20,20 @@ day = time.strftime('%d')
 
 print year, month, day
 
-mech = Browser()
-
-conn=MySQLdb.connect(host="localhost",user="root",passwd="!23QweAsdZxc",charset="utf8", db='finance')
-cursor = conn.cursor()
-
-if CATEGORY != '':
-	sql = 'SELECT * FROM SYMBOL WHERE CATEGORY=\'' + CATEGORY + '\''
-else:
-	sql = 'SELECT * FROM SYMBOL'
-
-num = cursor.execute( sql )
-
-if SKIPTO != '':
-	start = False
-else:
-	start = True
-
-for row in cursor.fetchall():
+def worker( i, targets, ret ):
+    mech = Browser()
+    for row in targets:
 	print '\033[1;33m', row[0], " ",  row[1] + '\033[0m'
-
 	dividend_file = 'history/' + row[1] + '.dividend'
-
 	if os.path.isfile( dividend_file ) == True:
-		continue
-
-	if row[1] == SKIPTO: 
-		start = True
-
-	if start == False:
 		continue
 
 	try:
 		url = divurl % (row[1], year, month, day)
-		print url
+		#print url
 		page = mech.open( url ) 
 	except Exception as e:
+                print 'something wrong here' , e
 		pass
 	else:
 		try:
@@ -69,9 +49,10 @@ for row in cursor.fetchall():
 
 	try:
 		url = priurl % (row[1], year, month, day)
-		print url
+		#print url
 		page = mech.open( url ) 
 	except Exception as e:
+                print 'something wrong here1' , e
 		pass
 	else:
 		try:
@@ -84,4 +65,39 @@ for row in cursor.fetchall():
 			f = open('history/' + row[1] + '.price', 'w')
 			f.write( '#' + html )
 			f.close()
+
+
+conn=MySQLdb.connect(host="localhost",user="root",passwd="!23QweAsdZxc",charset="utf8", db='finance')
+cursor = conn.cursor()
+
+if CATEGORY != '':
+	sql = 'SELECT * FROM SYMBOL WHERE CATEGORY=\'' + CATEGORY + '\''
+else:
+	sql = 'SELECT * FROM SYMBOL'
+
+Total = cursor.execute( sql )
+
+if SKIPTO != '':
+	start = False
+else:
+	start = True
+
+if os.path.isdir( 'history' ) == False:
+	os.mkdir( 'history' )
+
+rows = cursor.fetchall()
+threads = []
+ret = {}
+
+for i in range(0, Total/stocks_per_thread + 1):
+        if i*stocks_per_thread < Total:
+                target = rows[ i*stocks_per_thread: i*stocks_per_thread + stocks_per_thread ]
+        else:
+                target = rows[ i*stocks_per_thread: ]
+        t = threading.Thread( target=worker, args=(i, target,ret))
+        threads.append(t)
+        t.start() 
+
+for t in threads:
+        t.join()
 
