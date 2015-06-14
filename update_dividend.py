@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
-CATEGORY = 'mutual'
-SKIPTO = 'JHBIX'
+CATEGORY = ''
+SKIPTO = ''
 
 
+import os
 from mechanize import Browser
 import MySQLdb
 
@@ -14,7 +15,11 @@ conn=MySQLdb.connect(host="localhost",user="root",passwd="!23QweAsdZxc",charset=
 cursor = conn.cursor()
 
 
-sql = 'SELECT * FROM SYMBOL WHERE CATEGORY=\'' + CATEGORY + '\''
+if CATEGORY != '':
+    sql = 'SELECT * FROM SYMBOL WHERE CATEGORY=\'' + CATEGORY + '\''
+else:
+    sql = 'SELECT * FROM SYMBOL'
+
 
 num = cursor.execute( sql )
 
@@ -35,21 +40,13 @@ for row in cursor.fetchall():
 	if start == False:
 		continue
 
-	try:
-		page = mech.open( url % row[1] )
-	except Exception as e:
-		pass
-	else:
-		html = page.read()
-		print html
-
-
-		sql = 'UPDATE `finance`.`SYMBOL` SET `DIVIDEND` = 1 WHERE `symbol`.`INDEX` = %d' % row[0]
-		cursor.execute( sql )
-		conn.commit()
-
-		data = html.split('\n')
-
+        dividend_file = 'history/%s.dividend' % row[1] 
+        if os.path.isfile( dividend_file ) is True:
+            sql = 'UPDATE `SYMBOL` SET `DIVIDEND` = 1 WHERE `INDEX` = %d' % row[0]
+            cursor.execute( sql )
+            conn.commit()
+            with open( dividend_file, 'r')  as f:
+                data = f.readlines()
 		for x in data[1:]:
 			if len(x) == 0:
 				break;
@@ -58,9 +55,25 @@ for row in cursor.fetchall():
 			cursor.execute( sql )
 
 		conn.commit()
+        else:
+            try:
+                    page = mech.open( url % row[1] )
+            except Exception as e:
+                    pass
+            else:
+                    html = page.read()
+                    print html
 
+                    sql = 'UPDATE `SYMBOL` SET `DIVIDEND` = 1 WHERE `INDEX` = %d' % row[0]
+                    cursor.execute( sql )
+                    conn.commit()
+                    data = html.split('\n')
+                    for x in data[1:]:
+                            if len(x) == 0:
+                                    break;
+                            xx = x.split(',')
+                            sql = 'INSERT INTO `finance`.`DIVIDEND` (`INDEX`, `DATE`, `PRICING`) VALUES (\'%s\', \'%s\', \'%s\')' % ( row[0], xx[0], xx[1] )
+                            cursor.execute( sql )
 
-
-
-
+                    conn.commit()
 
