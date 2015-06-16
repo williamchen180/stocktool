@@ -17,15 +17,16 @@ class get_history:
 	def get( self, symbol ):
 		try:
 			url = self.divurl % (symbol, self.year, self.month, self.day)
-			print url
+			#print url
 			page = self.mech.open( url ) 
 		except Exception as e:
-			print e
+			#print e
+                        pass
 		else:
 			try:
 				html = page.read()
 			except Exception as e:
-				print html
+				#print html
 				with open('history/errorlist.txt', 'a') as f:
 					f.write( symbol + '\n' )
 			else:
@@ -35,15 +36,17 @@ class get_history:
 
 		try:
 			url = self.priurl % (symbol, self.year, self.month, self.day)
-			print url
+			#print url
 			page = self.mech.open( url ) 
 		except Exception as e:
-			print e
+			#print e
+                        pass
 		else:
 			try:
 				html = page.read()
 			except Exception as e:
-				print html
+				#print html
+                                pass
 				with open('history/errorlist.txt', 'a') as f:
 					f.write( symbol + '\n' )
 			else:

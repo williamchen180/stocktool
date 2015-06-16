@@ -26,6 +26,7 @@ def worker( i, targets, ret ):
 		try:
 			stock = Share( row[1] )
 		except Exception as e:
+                        print "ERR: %s " % row[1], e
 			pass
 		else:
 			price = stock.get_price()
@@ -50,7 +51,7 @@ if __name__ == '__main__':
 	if CATEGORY != '':
 		sql = 'SELECT * FROM SYMBOL WHERE CATEGORY=\'' + CATEGORY + '\''
 	else:
-		sql = 'SELECT * FROM SYMBOL'
+		sql = 'SELECT * FROM SYMBOL' 
 
 	Total = cursor.execute( sql )
 	print 'Total:', Total
@@ -80,7 +81,7 @@ if __name__ == '__main__':
 		t.join()
 
 	for x in ret:
-		sql = 'UPDATE `finance`.`SYMBOL` SET `PRICE` = %s WHERE `symbol`.`INDEX` = %d' % (ret[x], x[0] )
+		sql = 'UPDATE `SYMBOL` SET `PRICE` = %s WHERE `INDEX` = %d' % (ret[x], x[0] )
 		print sql
 		cursor.execute( sql )
 		conn.commit()

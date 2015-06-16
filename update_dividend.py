@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 CATEGORY = ''
-SKIPTO = ''
+SKIPTO = 'SQM'
 
 
 import os

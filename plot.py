@@ -24,13 +24,10 @@ class	plot:
 		num = cursor.execute( sql )
 
 		if num == 0:
-			print "%s not found" % symbol 
-			sys.exit(0)
+                        #print '[%s] not found' % symbol
+			return
 
 		rows = cursor.fetchall()
-
-		for r in rows:
-			print r
 
 		dividend_file = 'history/%s.dividend' % symbol 
 		price_file = 'history/%s.price' % symbol 
@@ -39,8 +36,8 @@ class	plot:
 			get_history.get_history().get(symbol)
 
 		if os.path.isfile( dividend_file ) == False or os.path.isfile( price_file) == False:
-			print "can't get dividend or history price from yahoo"
-			sys.exit(0)
+			#print "can't get dividend or history price from yahoo"
+                        return
 
 		if True:
 			num = cursor.execute( 'SELECT * FROM `DIVIDEND` WHERE `INDEX` = %d' % rows[0][0] )
@@ -49,14 +46,14 @@ class	plot:
 			div_total = 0.0
 			div_last = 0.0
 			for d in dividends:
-				print d
+				#print d
 				if d[1].year >= 2010 and d[1].year <= 2014:
 					div_total += d[2]
 
 				if d[1].year == 2014:
 					div_last += d[2]
 
-			print "Average dividend: ", div_total / 5.0
+			#print "Average dividend: ", div_total / 5.0
 
 
 		if True:
@@ -91,8 +88,8 @@ class	plot:
 			RRI9, RRI11, RRI14, RRI9Last, RRI11Last, RRI14Last ) )
 
 		p('set terminal png size 1200,600')
-		cmd = 'set output \'%s\'' %  ('./' + path + '/' + symbol + '.png')
-		print cmd
+		cmd = 'set output \'%s\'' %  ('./' + path + '/' + symbol + '.PNG')
+		#print cmd
 		p(cmd)
 		p('set datafile sep ","')
 		p('set xdata time')
@@ -127,8 +124,8 @@ class	plot:
 		p('plot "' + dividend_file + '" using 1:2 title "dividend" with linespoints')
 		p('unset multiplot')
 
-		time.sleep(1)
-		os.system( 'open %s' % (symbol + '.png') ) 
+		#time.sleep(1)
+		#os.system( 'open %s' % (symbol + '.png') ) 
 
 
 if __name__ == '__main__':
@@ -137,7 +134,7 @@ if __name__ == '__main__':
 		sys.exit(0)
 
 	for x in sys.argv[1:]:
-		plot( x )
+		plot( x, path='PNG' )
 
 
 
