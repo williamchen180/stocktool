@@ -7,6 +7,9 @@ import time
 from mechanize import Browser
 import MySQLdb
 import sys
+from yahoo_finance import Share
+
+
 
 class	plot:
 
@@ -16,22 +19,6 @@ class	plot:
 
 		symbol = symbol.upper()
 
-		conn=MySQLdb.connect(host="localhost",user="root",passwd="!23QweAsdZxc",charset="utf8", db='finance')
-		cursor = conn.cursor()
-
-		sql = 'SELECT * FROM `SYMBOL` WHERE `TICKER` LIKE \'%s\'' % symbol 
-
-		num = cursor.execute( sql )
-
-		if num == 0:
-			print "%s not found" % symbol 
-			sys.exit(0)
-
-		rows = cursor.fetchall()
-
-		for r in rows:
-			print r
-
 		dividend_file = 'history/%s.dividend' % symbol 
 		price_file = 'history/%s.price' % symbol 
 
@@ -39,38 +26,48 @@ class	plot:
 			get_history.get_history().get(symbol)
 
 		if os.path.isfile( dividend_file ) == False or os.path.isfile( price_file) == False:
-			print "can't get dividend or history price from yahoo"
-			sys.exit(0)
+			print "Dividend or history of %s can't be found from yahoo" % symbol
+			return False
 
-		if True:
-			num = cursor.execute( 'SELECT * FROM `DIVIDEND` WHERE `INDEX` = %d' % rows[0][0] )
-			dividends = cursor.fetchall()
 
+		with open( dividend_file, 'r') as f:
 			div_total = 0.0
 			div_last = 0.0
-			for d in dividends:
-				print d
-				if d[1].year >= 2010 and d[1].year <= 2014:
-					div_total += d[2]
+			for line in f.readlines():
+				if line[0] == '#':
+					continue
+				year = int(line.split('-')[0])
+				dividend = float( line.split(',')[1] )
 
-				if d[1].year == 2014:
-					div_last += d[2]
+				if year >= 2010 and year <= 2014:
+					div_total += dividend
+				if year == 2014:
+					div_last += dividend
 
 			print "Average dividend: ", div_total / 5.0
 
 
-		if True:
-			RRI9 = div_total / 5.0 / 0.09
-			RRI11 = div_total / 5.0 / 0.11
-			RRI14= div_total / 5.0 / 0.14
+		RRI9 = div_total / 5.0 / 0.09
+		RRI11 = div_total / 5.0 / 0.11
+		RRI14= div_total / 5.0 / 0.14
 
-			RRI9Last = div_last / 0.09
-			RRI11Last = div_last / 0.11
-			RRI14Last = div_last / 0.14
+		RRI9Last = div_last / 0.09
+		RRI11Last = div_last / 0.11
+		RRI14Last = div_last / 0.14
+
+		current_price = 0
+		try:
+			stock = Share( symbol )
+		except Exception as e:
+			print e
+			pass
 		else:
-			RRI9 = rows[0][11] 
-			RRI11 = rows[0][12] 
-			RRI14= rows[0][13] 
+			price = stock.get_price()
+			if price == None:
+				current_price = 0
+			else:
+				print type(price), price
+				current_price = float(price) 
 
 
 		p = Gnuplot.Gnuplot()
@@ -84,10 +81,10 @@ class	plot:
 		p('RRI11Last(x)=%f' % RRI11Last )
 		p('RRI14Last(x)=%f' % RRI14Last )
 
-		p('set title "%s, %s %s @ %s Price: %.2f ' \
+		p('set title "%s, Price: %.2f ' \
 		' (9,11,14)%% = (%.2f, %.2f, %.2f) '
 		' (9,11,14)%% = (%.2f, %.2f, %.2f)%%"' \
-			% (symbol, rows[0][3], rows[0][4], rows[0][2], rows[0][10], \
+			% (symbol, current_price, \
 			RRI9, RRI11, RRI14, RRI9Last, RRI11Last, RRI14Last ) )
 
 		p('set terminal png size 1200,600')
