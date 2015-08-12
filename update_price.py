@@ -85,3 +85,4 @@ if __name__ == '__main__':
 		print sql
 		cursor.execute( sql )
 		conn.commit()
+

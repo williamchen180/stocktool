@@ -45,10 +45,10 @@ for cond in conds:
 		plot.plot( row[1], path=path)
 
 	with open( path + '/index.html', 'w') as fp:
-		fp.write( '<html><head><title>NMS</title></head><body><p align="center">\n')
+		fp.write( '<html><head><title>%s</title></head><body><p align="center">\n' % cond)
 		for root, dirs, files in os.walk( path ): 
 			for f in files:
-				if f.endswith('png') == True:
+				if f.endswith('PNG') == True:
 					fp.write( '\t<a href="http://finance.yahoo.com/q?s=%s" target="_blank"/>\n' % f[:-4] )
 					fp.write( '\t\t<img border=10 src="./%s"/>\n' % f )
 					fp.write( '\t<a/>\n' )
