@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 CATEGORY = ''
-SKIPTO = ''
+SKIPTO = 'JEVRX'
 
 
 import os.path
@@ -26,7 +26,7 @@ cursor = conn.cursor()
 if CATEGORY != '':
 	sql = 'SELECT * FROM SYMBOL WHERE CATEGORY=\'' + CATEGORY + '\''
 else:
-	sql = 'SELECT * FROM SYMBOL LIMIT 25'
+	sql = 'SELECT * FROM SYMBOL'
 
 num = cursor.execute( sql )
 
