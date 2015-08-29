@@ -19,22 +19,6 @@ class	plot:
 
 		symbol = symbol.upper()
 
-<<<<<<< HEAD
-=======
-		conn=MySQLdb.connect(host="localhost",user="root",passwd="!23QweAsdZxc",charset="utf8", db='finance')
-		cursor = conn.cursor()
-
-		sql = 'SELECT * FROM `SYMBOL` WHERE `TICKER` LIKE \'%s\'' % symbol 
-
-		num = cursor.execute( sql )
-
-		if num == 0:
-                        #print '[%s] not found' % symbol
-			return
-
-		rows = cursor.fetchall()
-
->>>>>>> fe8472e8bd5492f2c0275ed6cc7ceef0a40967c3
 		dividend_file = 'history/%s.dividend' % symbol 
 		price_file = 'history/%s.price' % symbol 
 
@@ -42,30 +26,17 @@ class	plot:
 			get_history.get_history().get(symbol)
 
 		if os.path.isfile( dividend_file ) == False or os.path.isfile( price_file) == False:
-<<<<<<< HEAD
-			print "Dividend or history of %s can't be found from yahoo" % symbol
-			return False
-=======
 			#print "can't get dividend or history price from yahoo"
                         return
->>>>>>> fe8472e8bd5492f2c0275ed6cc7ceef0a40967c3
 
 
 		with open( dividend_file, 'r') as f:
 			div_total = 0.0
 			div_last = 0.0
-<<<<<<< HEAD
-			for line in f.readlines():
-				if line[0] == '#':
-					continue
-				year = int(line.split('-')[0])
-				dividend = float( line.split(',')[1] )
-=======
 			for d in dividends:
 				#print d
 				if d[1].year >= 2010 and d[1].year <= 2014:
 					div_total += d[2]
->>>>>>> fe8472e8bd5492f2c0275ed6cc7ceef0a40967c3
 
 				if year >= 2010 and year <= 2014:
 					div_total += dividend
