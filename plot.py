@@ -26,7 +26,7 @@ class	plot:
 			get_history.get_history().get(symbol)
 
 		if os.path.isfile( dividend_file ) == False or os.path.isfile( price_file) == False:
-			#print "can't get dividend or history price from yahoo"
+			print "can't get dividend or history price from yahoo"
                         return
 
 
