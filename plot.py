@@ -8,12 +8,19 @@ from mechanize import Browser
 import MySQLdb
 import sys
 from yahoo_finance import Share
+import datetime
 
 
 
 class	plot:
 
 	def __init__( self, symbol, path = '' ):
+
+		current_price = 0
+
+		now = datetime.datetime.now()
+
+		now_month_index = now.year * 12 + now.month
 
 		self.path = path
 
@@ -27,23 +34,40 @@ class	plot:
 
 		if os.path.isfile( dividend_file ) == False or os.path.isfile( price_file) == False:
 			print "can't get dividend or history price from yahoo"
-                        return
+			return
+
+		if os.path.isdir( path ) == False:
+			os.mkdir( path )
+
+		with open( price_file, 'r') as f:
+			f.readline()
+			l = f.readline()
+
+			current_price = float( l.split(',')[-1] )
 
 
 		with open( dividend_file, 'r') as f:
 			div_total = 0.0
 			div_last = 0.0
-			for d in dividends:
-				#print d
-				if d[1].year >= 2010 and d[1].year <= 2014:
-					div_total += d[2]
 
-				if year >= 2010 and year <= 2014:
+			for l in f.readlines():
+				if l[0] == '#':
+					continue
+				datestring, dividend = l.split(',')
+				( year, month, day ) = datestring.split('-')
+
+				dividend = float( dividend )
+
+				month_index = year * 12 + month
+
+				if month_index >= (now_month_index - 61):
 					div_total += dividend
-				if year == 2014:
+
+				if month_index >= (now_month_index - 13):
 					div_last += dividend
 
-			#print "Average dividend: ", div_total / 5.0
+		print "Average 5 years dividend: ", div_total / 5.0
+		print "Last average dividend: ", div_last
 
 
 		RRI9 = div_total / 5.0 / 0.09
@@ -53,20 +77,6 @@ class	plot:
 		RRI9Last = div_last / 0.09
 		RRI11Last = div_last / 0.11
 		RRI14Last = div_last / 0.14
-
-		current_price = 0
-		try:
-			stock = Share( symbol )
-		except Exception as e:
-			print e
-			pass
-		else:
-			price = stock.get_price()
-			if price == None:
-				current_price = 0
-			else:
-				print type(price), price
-				current_price = float(price) 
 
 
 		p = Gnuplot.Gnuplot()
@@ -102,6 +112,7 @@ class	plot:
 		p('set size 1, 0.4')
 		p('set origin 0, 0.6')
 		p('plot RRI9(x) title "9%", RRI11(x) title "11%", RRI14(x) title "14%", "' + price_file + '" using 1:5 notitle with lines')
+
 		p('set grid')
 		p('set title ""')
 		p('set tmargin 0')
@@ -112,13 +123,13 @@ class	plot:
 		p('set size 1.0, 0.3')
 		p('set origin 0.0, 0.3')
 		p('plot "' + price_file + '" using 1:($6/1000) title "volume x1000" with impulses')
+
 		p('set xdata time')
 		p('set timefmt "%Y-%m-%d"')
 		p('set format x "%y/%m/%d"')
 		#p('set xtics ("2010/01/01","2011/01/01")')
 		p('set size 1.0, 0.3')
 		p('set origin 0.0, 0.0')
-
 		p('set bmargin')
 		p('plot "' + dividend_file + '" using 1:2 title "dividend" with linespoints')
 		p('unset multiplot')
