@@ -33,7 +33,7 @@ class	plot:
 			get_history.get_history().get(symbol)
 
 		if os.path.isfile( dividend_file ) == False or os.path.isfile( price_file) == False:
-			print "can't get dividend or history price from yahoo"
+			#print "can't get dividend or history price from yahoo"
 			return
 
 		if os.path.isdir( path ) == False:
@@ -57,6 +57,8 @@ class	plot:
 				( year, month, day ) = datestring.split('-')
 
 				dividend = float( dividend )
+				year = int(year)
+				month = int(month)
 
 				month_index = year * 12 + month
 
@@ -66,8 +68,8 @@ class	plot:
 				if month_index >= (now_month_index - 13):
 					div_last += dividend
 
-		print "Average 5 years dividend: ", div_total / 5.0
-		print "Last average dividend: ", div_last
+		#print "Average 5 years dividend: ", div_total / 5.0
+		#print "Last average dividend: ", div_last
 
 
 		RRI9 = div_total / 5.0 / 0.09
