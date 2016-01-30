@@ -14,7 +14,10 @@ import datetime
 
 class	plot:
 
-	def __init__( self, symbol, path = '' ):
+	def __init__(self):
+            pass
+
+	def plot( self, symbol, path = '', years = 5 ):
 
 		current_price = 0
 
@@ -29,8 +32,7 @@ class	plot:
 		dividend_file = 'history/%s.dividend' % symbol 
 		price_file = 'history/%s.price' % symbol 
 
-		if os.path.isfile( dividend_file ) == False or os.path.isfile( price_file) == False:
-			get_history.get_history().get(symbol)
+		get_history.get_history().get(symbol)
 
 		if os.path.isfile( dividend_file ) == False or os.path.isfile( price_file) == False:
 			#print "can't get dividend or history price from yahoo"
@@ -62,24 +64,37 @@ class	plot:
 
 				month_index = year * 12 + month
 
-				if month_index >= (now_month_index - 61):
+                                #print datestring, month_index, now_month_index, (now_month_index - month_index)
+
+				if month_index >= (now_month_index - 12*int(years) + 1):
 					div_total += dividend
 
 				if month_index >= (now_month_index - 13):
 					div_last += dividend
+                                        #print datestring, dividend, div_last
 
 		#print "Average 5 years dividend: ", div_total / 5.0
 		#print "Last average dividend: ", div_last
 
 
-		RRI9 = div_total / 5.0 / 0.09
-		RRI11 = div_total / 5.0 / 0.11
-		RRI14= div_total / 5.0 / 0.14
+		RRI9 = div_total / float(years) / 0.09
+		RRI11 = div_total / float(years) / 0.11
+		RRI14= div_total / float(years) / 0.14
 
 		RRI9Last = div_last / 0.09
 		RRI11Last = div_last / 0.11
 		RRI14Last = div_last / 0.14
 
+                
+                ret = {}
+                ret['last'] = div_last
+                ret['total'] = div_total
+                ret['lastAvg'] = div_last
+                ret['totalAvg'] = div_total / float(years)
+                if current_price != 0:
+                    ret['nowROI'] = 100.0 * div_last / current_price  
+                else:
+                    ret['nowROI'] = 0
 
 		p = Gnuplot.Gnuplot()
 
@@ -113,7 +128,11 @@ class	plot:
 		p('set multiplot')
 		p('set size 1, 0.4')
 		p('set origin 0, 0.6')
-		p('plot RRI9(x) title "9%", RRI11(x) title "11%", RRI14(x) title "14%", "' + price_file + '" using 1:5 notitle with lines')
+		p('plot '\
+                        'RRI9(x) title "9%", '\
+                        'RRI11(x) title "11%", '\
+                        'RRI14(x) title "14%", "' \
+                        + price_file + '" using 1:5 notitle with lines')
 
 		p('set grid')
 		p('set title ""')
@@ -140,13 +159,23 @@ class	plot:
 		#os.system( 'open %s' % (symbol + '.png') ) 
 
 
+		return ret
+
+
+
+
+
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print "Usage: ", sys.argv[0], " SYMBOL"
 		sys.exit(0)
 
 	for x in sys.argv[1:]:
-		plot( x, path='PNG' )
+                p = plot()
+		ret = p.plot( x, path='PNG' )
+                print ret
+
+
 
 
 

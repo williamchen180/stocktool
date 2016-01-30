@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-import os
 import time
 from mechanize import Browser
 
@@ -14,11 +13,6 @@ class get_history:
 		self.day = time.strftime('%d')
 
 		self.mech = Browser()
-
-        if os.path.isdir('history') == False:
-            os.mkdir('history')
-
-
 
 	def get( self, symbol ):
 		try:
