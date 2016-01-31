@@ -66,10 +66,10 @@ class	plot:
 
                                 #print datestring, month_index, now_month_index, (now_month_index - month_index)
 
-				if month_index >= (now_month_index - 12*int(years) + 1):
+				if month_index > (now_month_index - 12*int(years) ):
 					div_total += dividend
 
-				if month_index >= (now_month_index - 13):
+				if month_index > (now_month_index - 12):
 					div_last += dividend
                                         #print datestring, dividend, div_last
 
