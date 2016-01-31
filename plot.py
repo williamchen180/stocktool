@@ -47,6 +47,7 @@ class	plot:
 
 			current_price = float( l.split(',')[-1] )
 
+                all_dividends = []
 
 		with open( dividend_file, 'r') as f:
 			div_total = 0.0
@@ -55,6 +56,7 @@ class	plot:
 			for l in f.readlines():
 				if l[0] == '#':
 					continue
+                                all_dividends.append(l)
 				datestring, dividend = l.split(',')
 				( year, month, day ) = datestring.split('-')
 
@@ -161,6 +163,7 @@ class	plot:
 		#time.sleep(1)
 		#os.system( 'open %s' % (symbol + '.png') ) 
 
+                ret['all_dividends'] = all_dividends
 
 		return ret
 
