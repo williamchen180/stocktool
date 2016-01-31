@@ -93,8 +93,11 @@ class	plot:
                 ret['totalAvg'] = div_total / float(years)
                 if current_price != 0:
                     ret['nowROI'] = 100.0 * div_last / current_price  
+                    ret['yearsROI'] = 100.0 * (div_total / float(years)) / current_price
                 else:
-                    ret['nowROI'] = 0
+                    ret['nowROI'] = 0.0
+                    ret['yearsROI'] = 0.0
+
 
 		p = Gnuplot.Gnuplot()
 
